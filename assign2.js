@@ -95,32 +95,32 @@ d3.csv("countries_of_world.csv", function(error, data) {
       .attr("dy", ".71em")
       .style("text-anchor", "end")
     .text(yName);
-    var objects = svg.append("svg")
-      .classed("objects", true)
-      .attr("width", width)
-      .attr("height", height);
+  //   var objects = svg.append("svg")
+  //     .classed("objects", true)
+  //     .attr("width", width)
+  //     .attr("height", height);
 
-  objects.append("svg:line")
-      .classed("axisLine hAxisLine", true)
-      .attr("x1", 0)
-      .attr("y1", 0)
-      .attr("x2", width)
-      .attr("y2", 0)
-      .attr("transform", "translate(0," + height + ")");
+  // objects.append("svg:line")
+  //     .classed("axisLine hAxisLine", true)
+  //     .attr("x1", 0)
+  //     .attr("y1", 0)
+  //     .attr("x2", width)
+  //     .attr("y2", 0)
+  //     .attr("transform", "translate(0," + height + ")");
 
-  objects.append("svg:line")
-      .classed("axisLine vAxisLine", true)
-      .attr("x1", 0)
-      .attr("y1", 0)
-      .attr("x2", 0)
-    .attr("y2", height);
+  // objects.append("svg:line")
+  //     .classed("axisLine vAxisLine", true)
+  //     .attr("x1", 0)
+  //     .attr("y1", 0)
+  //     .attr("x2", 0)
+  //   .attr("y2", height);
 
     svg.append("rect")
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height)
 
   // draw dots
-  svg.selectAll(".dot")
+    svg.selectAll(".dot")
       .data(data)
     .enter().append("circle")
       .attr("class", "dot")
