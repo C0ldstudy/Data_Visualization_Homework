@@ -1,8 +1,8 @@
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
+var margin = {top: 20, right: 20, bottom: 30, left: 100},
   width = 960 - margin.left - margin.right,
   height = 500 - margin.top - margin.bottom;
-var xName = "Birth Rate",
-  yName = "Death Rate";
+var xName = "Population",
+  yName = "Population";
 
 /*
  * value accessor - returns the value to encode for a given data object.
@@ -12,13 +12,13 @@ var xName = "Birth Rate",
  */
 
 // setup x
-var xValue = function(d) { return d["Birth Rate"];}, // data -> value
+var xValue = function(d) { return d[xName];}, // data -> value
     xScale = d3.scale.linear().range([0,width]).nice(), // value -> display
     xMap = function(d) { return xScale(xValue(d));}, // data -> display
     xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format(".0%"));
 
 // setup y
-var yValue = function(d) { return d["Death Rate"];}, // data -> value
+var yValue = function(d) { return d[yName];}, // data -> value
     yScale = d3.scale.linear().range([height, 0]).nice(), // value -> display
     yMap = function(d) { return yScale(yValue(d));}, // data -> display
     yAxis = d3.svg.axis().scale(yScale).orient("left").tickFormat(d3.format(".0%"));
@@ -33,12 +33,23 @@ var tooltip = d3.select("body").append("div")
   .style("opacity", 0);
 
 // load data
-d3.csv("countries_of_world.csv", function(error, data) {
+d3.csv("countries_of_world.csv", function (error, data) {
+  var selectData = [];
+  for (i = 2; i < Object.keys(data[0]).length; i++){
+    selectData.push({ "text": Object.keys(data[0])[i] })
+  }
+
+
+  // var selectData = [ { "text" : "Annualized Return" },
+  //                    { "text" : "Annualized Standard Deviation" },
+  //                    { "text" : "Maximum Drawdown" },
+  // ]
+
 
   // change string (from CSV) into number format
   data.forEach(function(d) {
-    d["Birth Rate"] = +d["Birth Rate"];
-    d["Death Rate"] = +d["Death Rate"];
+    d[xName] = +d[xName];
+    d[yName] = +d[yName];
     // console.log(d);
   });
 
@@ -57,6 +68,7 @@ d3.csv("countries_of_world.csv", function(error, data) {
 
   // zoom in/out
   var zoomBeh = d3.behavior.zoom()
+
     .x(xScale)
     .y(yScale)
     .scaleExtent([0, 500])
@@ -71,13 +83,42 @@ d3.csv("countries_of_world.csv", function(error, data) {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .call(zoomBeh);
 
+      // Select X-axis Variable
+  d3.select("#scatter").append('br');
+      var span = d3.select("#scatter").append('span')
+      .text('Select X-Axis variable: ')
+    var yInput = d3.select("#scatter").append('select')
+        .attr('id','xSelect')
+        .on('change',xChange)
+      .selectAll('option')
+        .data(selectData)
+        .enter()
+      .append('option')
+        .attr('value', function (d) { return d.text })
+        .text(function (d) { return d.text ;})
+  d3.select("#scatter").append('br');
+
+    // Select Y-axis Variable
+    var span = d3.select("#scatter").append('span')
+        .text('Select Y-Axis variable: ')
+    var yInput = d3.select("#scatter").append('select')
+        .attr('id','ySelect')
+        .on('change',yChange)
+      .selectAll('option')
+        .data(selectData)
+        .enter()
+      .append('option')
+        .attr('value', function (d) { return d.text })
+        .text(function (d) { return d.text ;})
+  d3.select("#scatter").append('br');
+
   // x-axis
   svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis)
     .append("text")
-      .attr("class", "label")
+      .attr("class", "xlabel")
       .attr("x", width)
       .attr("y", -6)
       .style("text-anchor", "end")
@@ -89,31 +130,12 @@ d3.csv("countries_of_world.csv", function(error, data) {
       .attr("class", "y axis")
       .call(yAxis)
     .append("text")
-      .attr("class", "label")
+      .attr("class", "ylabel")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
     .text(yName);
-  //   var objects = svg.append("svg")
-  //     .classed("objects", true)
-  //     .attr("width", width)
-  //     .attr("height", height);
-
-  // objects.append("svg:line")
-  //     .classed("axisLine hAxisLine", true)
-  //     .attr("x1", 0)
-  //     .attr("y1", 0)
-  //     .attr("x2", width)
-  //     .attr("y2", 0)
-  //     .attr("transform", "translate(0," + height + ")");
-
-  // objects.append("svg:line")
-  //     .classed("axisLine vAxisLine", true)
-  //     .attr("x1", 0)
-  //     .attr("y1", 0)
-  //     .attr("x2", 0)
-  //   .attr("y2", height);
 
     svg.append("rect")
     .attr("width", width)
@@ -173,6 +195,50 @@ d3.csv("countries_of_world.csv", function(error, data) {
   }
 
   function transform(d) {
+    console.log(xName, yName);
     return "translate(" + xScale(d[xName]) + "," + yScale(d[yName]) + ")";
   }
+
+  function yChange() {
+    var value = this.value; // get the new y value
+    yName = this.value;
+    console.log(yName);
+    yScale // change the yScale
+      .domain([
+        d3.min([0,d3.min(data,function (d) { return d[value] })]),
+        d3.max([0,d3.max(data,function (d) { return d[value] })])
+        ])
+    yAxis.scale(yScale) // change the yScale
+    d3.select('.y.axis') // redraw the yAxis
+      .transition().duration(1000)
+      .call(yAxis)
+    d3.select('.ylabel') // change the yAxisLabel
+      .text(value)
+    d3.selectAll('circle') // move the circles
+      .transition().duration(1000)
+      // .delay(function (d,i) { return i*100})
+        .attr('cy',function (d) { return yScale(d[value]) })
+  }
+
+  function xChange() {
+    var value = this.value; // get the new x value
+    xName = this.value;
+    xScale // change the xScale
+      .domain([
+        d3.min([0,d3.min(data,function (d) { return d[value] })]),
+        d3.max([0,d3.max(data,function (d) { return d[value] })])
+        ])
+    xAxis.scale(xScale) // change the xScale
+    d3.select('.x.axis') // redraw the xAxis
+      .transition().duration(1000)
+      .call(xAxis)
+    d3.select('.xlabel') // change the xAxisLabel
+      .transition().duration(1000)
+      .text(value)
+    d3.selectAll('circle') // move the circles
+      .transition().duration(1000)
+      // .delay(function (d,i) { return i*100})
+        .attr('cx',function (d) { return xScale(d[value]) })
+  }
+
 });
