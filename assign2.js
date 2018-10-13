@@ -14,19 +14,21 @@ var xName = "Birth Rate",
 
 // setup x
 var xValue = function(d) { return d[xName];}, // data -> value
-    xScale = d3.scale.linear().range([0,width]).nice(), // value -> display
+    xScale = d3.scaleLinear().range([0,width]).nice(), // value -> display
     xMap = function(d) { return xScale(xValue(d));}, // data -> display
-    xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format(".0%"));
+  // xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format(".0%"));
+    xAxis = d3.axisBottom().scale(xScale).tickFormat(d3.format(".0%"));
 
 // setup y
 var yValue = function(d) { return d[yName];}, // data -> value
-    yScale = d3.scale.linear().range([height, 0]).nice(), // value -> display
+    yScale = d3.scaleLinear().range([height, 0]).nice(), // value -> display
     yMap = function(d) { return yScale(yValue(d));}, // data -> display
-    yAxis = d3.svg.axis().scale(yScale).orient("left").tickFormat(d3.format(".0%"));
+    // yAxis = d3.svg.axis().scale(yScale).orient("left").tickFormat(d3.format(".0%"));
+    yAxis = d3.axisLeft().scale(yScale).tickFormat(d3.format(".0%"));
 
 // setup fill color
 var cValue = function(d) { return d["Region"];},
-    color = d3.scale.category10();
+    color = d3.scaleOrdinal(d3.schemeCategory10);
 
 // add the tooltip area to the webpage
 var tooltip = d3.select("body").append("div")
@@ -49,34 +51,16 @@ d3.csv("countries_of_world.csv", function (error, data) {
   xScale.domain([xMin, xMax]);
   yScale.domain([yMin, yMax]);
 
-
-
-// zoom in/out
-  var zoomBeh = d3.behavior.zoom()
-    .x(xScale)
-    .y(yScale)
-    .scaleExtent([0, 500])
-    .on("zoom", zoom);
-
-    // add the graph canvas to the body of the webpage
+// add the graph canvas to the body of the webpage
   var svg = d3.select("#scatter")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    // .call(zoomed);
-
-  // var context = d3.zoom();
-
-    // function zoomed() {
-    //   context.save();
-    //   context.clearRect(0, 0, width, height);
-    //   context.translate(d3.event.transform.x, d3.event.transform.y);
-    //   context.scale(d3.event.transform.k, d3.event.transform.k);
-    //   drawPoints();
-    //   context.restore();
-    // }
+    .call(d3.zoom()
+    .scaleExtent([0, 500])
+      .on("zoom", zoom));
 
 
 // Select X-axis Variable
@@ -94,7 +78,7 @@ d3.csv("countries_of_world.csv", function (error, data) {
         .text(function (d) { return d.text ;})
   d3.select("#scatter").append('br');
 
-    // Select Y-axis Variable
+// Select Y-axis Variable
   var span = d3.select("#scatter").append('span')
         .text('Select Y-Axis variable: ')
   var yInput = d3.select("#scatter").append('select')
@@ -108,7 +92,7 @@ d3.csv("countries_of_world.csv", function (error, data) {
         .text(function (d) { return d.text ;})
   d3.select("#scatter").append('br');
 
-  // x-axis
+// x-axis
   svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
@@ -120,7 +104,7 @@ d3.csv("countries_of_world.csv", function (error, data) {
       .style("text-anchor", "end")
       .text(xName);
 
-  // y-axis
+// y-axis
   svg.append("g")
       .attr("class", "y axis")
       .call(yAxis)
@@ -143,9 +127,6 @@ d3.csv("countries_of_world.csv", function (error, data) {
       .attr("class", "dot")
       .attr("r", 3.5)
       .attr("transform", transform)
-      // .attr('cx',function (d) { return xScale(d['Annualized Return']) })
-      // .attr('cy',function (d) { return yScale(d['Annualized Return']) })
-
       .style("fill", function(d) { return color(cValue(d));})
     .on("mouseover", function (d) {
       d3.select(this).transition().attr("r", 10); //change the radius to enlarge the circle
@@ -179,18 +160,15 @@ d3.csv("countries_of_world.csv", function (error, data) {
 
   // draw legend text
   legend.append("text")
-      .attr("x", width - 24)
-      .attr("y", 9)
-      .attr("dy", ".35em")
-      .style("text-anchor", "end")
-    .text(function (d) { return d; })
+    .attr("x", width - 24)
+    .attr("y", 9)
+    .attr("dy", ".35em")
+    .style("text-anchor", "end")
+    .text(function (d) { return d; });
 
-  function zoom() {
-    svg.select(".x.axis").call(xAxis);
-    svg.select(".y.axis").call(yAxis);
-    svg.selectAll(".dot")
-      .attr("transform", transform);
-  }
+    function zoom() {
+      svg.attr("transform", d3.event.transform);
+    }
 
   function transform(d) {
     return "translate(" + xScale(d[xName]) + "," + yScale(d[yName]) + ")";
