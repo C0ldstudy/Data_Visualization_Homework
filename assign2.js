@@ -49,6 +49,8 @@ d3.csv("countries_of_world.csv", function (error, data) {
   xScale.domain([xMin, xMax]);
   yScale.domain([yMin, yMax]);
 
+
+
 // zoom in/out
   var zoomBeh = d3.behavior.zoom()
     .x(xScale)
@@ -62,8 +64,20 @@ d3.csv("countries_of_world.csv", function (error, data) {
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    // .call(zoomBeh);
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    // .call(zoomed);
+
+  // var context = d3.zoom();
+
+    // function zoomed() {
+    //   context.save();
+    //   context.clearRect(0, 0, width, height);
+    //   context.translate(d3.event.transform.x, d3.event.transform.y);
+    //   context.scale(d3.event.transform.k, d3.event.transform.k);
+    //   drawPoints();
+    //   context.restore();
+    // }
+
 
 // Select X-axis Variable
   d3.select("#scatter").append('br');
