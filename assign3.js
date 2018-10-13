@@ -2,8 +2,8 @@ var margin = {top: 20, right: 20, bottom: 30, left: 100},
   width = 960 - margin.left - margin.right,
   height = 500 - margin.top - margin.bottom;
 
-var xName = "Birth Rate",
-  yName = "Death Rate";
+var xName = "Population",
+  yName = "Population";
 
 /*
  * value accessor - returns the value to encode for a given data object.
@@ -40,6 +40,13 @@ d3.csv("countries_of_world.csv", function (error, data) {
     selectData.push({ "text": Object.keys(data[0])[i] })
   }
 
+  // change string (from CSV) into number format
+  data.forEach(function(d) {
+    d[xName] = +d[xName];
+    d[yName] = +d[yName];
+    // console.log(d);
+  });
+
   var xMax = d3.max(data, function(d) { return d[xName]; }) * 1.05,
       xMin = d3.min(data, function(d) { return d[xName]; }),
       xMin = xMin > 0 ? 0 : xMin,
@@ -49,7 +56,11 @@ d3.csv("countries_of_world.csv", function (error, data) {
   xScale.domain([xMin, xMax]);
   yScale.domain([yMin, yMax]);
 
-// zoom in/out
+  // // don't want dots overlapping axis, so add in buffer to data domain
+  // xScale.domain([d3.min(data, xValue)-0.01, d3.max(data, xValue)+0.01]);
+  // yScale.domain([d3.min(data, yValue)-0.01, d3.max(data, yValue)+0.01]);
+
+  // zoom in/out
   var zoomBeh = d3.behavior.zoom()
     .x(xScale)
     .y(yScale)
@@ -62,14 +73,14 @@ d3.csv("countries_of_world.csv", function (error, data) {
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    // .call(zoomBeh);
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .call(zoomBeh);
 
-// Select X-axis Variable
+      // Select X-axis Variable
   d3.select("#scatter").append('br');
-  var span = d3.select("#scatter").append('span')
+      var span = d3.select("#scatter").append('span')
       .text('Select X-Axis variable: ')
-  var yInput = d3.select("#scatter").append('select')
+    var yInput = d3.select("#scatter").append('select')
         .attr('id','xSelect')
         .on('change',xChange)
       .selectAll('option')
@@ -81,9 +92,9 @@ d3.csv("countries_of_world.csv", function (error, data) {
   d3.select("#scatter").append('br');
 
     // Select Y-axis Variable
-  var span = d3.select("#scatter").append('span')
+    var span = d3.select("#scatter").append('span')
         .text('Select Y-Axis variable: ')
-  var yInput = d3.select("#scatter").append('select')
+    var yInput = d3.select("#scatter").append('select')
         .attr('id','ySelect')
         .on('change',yChange)
       .selectAll('option')
@@ -105,6 +116,7 @@ d3.csv("countries_of_world.csv", function (error, data) {
       .attr("y", -6)
       .style("text-anchor", "end")
       .text(xName);
+
 
   // y-axis
   svg.append("g")
@@ -179,49 +191,52 @@ d3.csv("countries_of_world.csv", function (error, data) {
   }
 
   function transform(d) {
+    console.log(xName, yName);
     return "translate(" + xScale(d[xName]) + "," + yScale(d[yName]) + ")";
   }
 
   function yChange() {
     var value = this.value; // get the new y value
     yName = this.value;
-// change the yScale
-    yScale.domain([
-      d3.min([0, d3.min(data, function (d) { return d[value] * 1.01 })]),
-      d3.max([0, d3.max(data, function (d) { return d[value] * 1.01 })])
-    ]);
-    yAxis.scale(yScale); // change the yScale
+    // console.log(yName);
+    yScale // change the yScale
+      .domain([
+        d3.min([0, d3.min(data, function (d) { return d[value] })]),
+        d3.max([0, d3.max(data, function (d) { return d[value] })])
+      ])
+    yAxis.scale(yScale) // change the yScale
     d3.select('.y.axis') // redraw the yAxis
       .transition().duration(1000)
-      .call(yAxis);
+      .call(yAxis)
     d3.select('.ylabel') // change the yAxisLabel
-      .text(value);
-    d3.selectAll('circle') // move the circles
+      .text(value)
+    d3.selectAll('circles') // move the circles
       .transition().duration(1000)
-      .attr("transform", function(d) { return "translate(" + xScale(d[xName]) + "," + yScale(d[value]) + ")" });
+      // .delay(function (d,i) { return i*100})
+      .attr(("transform", function (d) { return "translate(" + 0 + "," + yScale(d[value]) + ")" }))
         // .attr('cy',function (d) { return yScale(d[value]) })
   }
 
   function xChange() {
     var value = this.value; // get the new x value
     xName = this.value;
-// change the xScale
-     xScale.domain([
-        d3.min([0, d3.min(data, function (d) { return d[value]*1.01 })]),
-        d3.max([0, d3.max(data, function (d) { return d[value]*1.01 })])
-     ]);
-    xAxis.scale(xScale); // change the xScale
+    xScale // change the xScale
+      .domain([
+        d3.min([0,d3.min(data,function (d) { return d[value] })]),
+        d3.max([0,d3.max(data,function (d) { return d[value] })])
+        ])
+    xAxis.scale(xScale) // change the xScale
     d3.select('.x.axis') // redraw the xAxis
       .transition().duration(1000)
-      .call(xAxis);
+      .call(xAxis)
     d3.select('.xlabel') // change the xAxisLabel
       .transition().duration(1000)
-      .text(value);
-
-    d3.selectAll('circle') // move the circles
+      .text(value)
+    d3.selectAll('circles') // move the circles
       .transition().duration(1000)
-      .attr("transform", function(d) { return "translate(" + xScale(d[value]) + "," + yScale(d[yName]) + ")" });
-      // .attr('cx', function (d) { return xScale(d[value]) });
+      .attr(("transform", function (d) { return "translate(" + xScale(d[value]) + "," + 0 + ")" }))
+      // .delay(function (d,i) { return i*100})
+        // .attr('cx',function (d) { return xScale(d[value]) })
   }
 
 });
