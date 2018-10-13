@@ -16,14 +16,12 @@ var xName = "Birth Rate",
 var xValue = function(d) { return d[xName];}, // data -> value
     xScale = d3.scaleLinear().range([0,width]).nice(), // value -> display
     xMap = function(d) { return xScale(xValue(d));}, // data -> display
-  // xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format(".0%"));
     xAxis = d3.axisBottom().scale(xScale).tickFormat(d3.format(".0%"));
 
 // setup y
 var yValue = function(d) { return d[yName];}, // data -> value
     yScale = d3.scaleLinear().range([height, 0]).nice(), // value -> display
     yMap = function(d) { return yScale(yValue(d));}, // data -> display
-    // yAxis = d3.svg.axis().scale(yScale).orient("left").tickFormat(d3.format(".0%"));
     yAxis = d3.axisLeft().scale(yScale).tickFormat(d3.format(".0%"));
 
 // setup fill color
@@ -61,7 +59,6 @@ d3.csv("countries_of_world.csv", function (error, data) {
     .call(d3.zoom()
     .scaleExtent([0, 500])
       .on("zoom", zoom));
-
 
 // Select X-axis Variable
   d3.select("#scatter").append('br');
@@ -191,7 +188,6 @@ d3.csv("countries_of_world.csv", function (error, data) {
     d3.selectAll('circle') // move the circles
       .transition().duration(1000)
       .attr("transform", function(d) { return "translate(" + xScale(d[xName]) + "," + yScale(d[value]) + ")" });
-        // .attr('cy',function (d) { return yScale(d[value]) })
   }
 
   function xChange() {
@@ -213,7 +209,6 @@ d3.csv("countries_of_world.csv", function (error, data) {
     d3.selectAll('circle') // move the circles
       .transition().duration(1000)
       .attr("transform", function(d) { return "translate(" + xScale(d[value]) + "," + yScale(d[yName]) + ")" });
-      // .attr('cx', function (d) { return xScale(d[value]) });
   }
 
 });
