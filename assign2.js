@@ -89,6 +89,8 @@ d3.csv("countries_of_world.csv", function (error, data) {
         .text(function (d) { return d.text ;})
   d3.select("#scatter").append('br');
 
+  console.log(xName);
+
 // x-axis
   svg.append("g")
       .attr("class", "x axis")
@@ -99,6 +101,7 @@ d3.csv("countries_of_world.csv", function (error, data) {
       .attr("x", width)
       .attr("y", -6)
       .style("text-anchor", "end")
+      .style("fill", "black")
       .text(xName);
 
 // y-axis
@@ -111,7 +114,8 @@ d3.csv("countries_of_world.csv", function (error, data) {
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-    .text(yName);
+      .style("fill", "black")
+      .text(yName);
 
     svg.append("rect")
     .attr("width", width)
