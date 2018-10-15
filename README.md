@@ -1,6 +1,6 @@
 # Data_Visualization_Homework
 
-** xiuxiu's homework**
+**xiuxiu's homework**
 
 ### Installation
 
