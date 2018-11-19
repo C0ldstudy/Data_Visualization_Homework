@@ -8,11 +8,11 @@
 
 **d3.v4.js**
 
-> // go to the assignment directory
+> // enter the assignment directory
 > 
 > python -m http.server 8000
 > 
-> //go to the browser
+> // open the browser
 > 
 > input localhost:8000 in url
 
