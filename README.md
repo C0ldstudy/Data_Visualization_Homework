@@ -1,7 +1,5 @@
 # Data_Visualization_Homework
 
-**xiuxiu's homework**
-
 ### Installation
 
 **python 3.0+**
